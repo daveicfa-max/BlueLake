@@ -1,0 +1,11 @@
+PWA icons needed:
+  /icon-192.png            192×192 standard
+  /icon-512.png            512×512 standard
+  /icon-maskable-512.png   512×512 maskable (with safe-area padding)
+  /apple-touch-icon.png    180×180 iOS home-screen icon
+
+Drop in real icons (likely a Blue Lake logo / lake photo crop) before
+the PWA install experience matters. Until then iOS will show a generic
+screenshot when added to the home screen.
+
+Generator suggestion: https://realfavicongenerator.net or `npx pwa-asset-generator`.

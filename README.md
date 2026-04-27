@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Blue Lake
 
-## Getting Started
+Mobile-first iOS PWA for managing the family lakehouse — calendar, tasks,
+handyman work, expenses, weather, and Nest devices.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router, Turbopack, React 19.2)
+- **TypeScript** + **Tailwind CSS v4** + **shadcn/ui** (base-ui preset)
+- **Supabase** — Postgres, Auth (magic link), Storage, Realtime, Edge Functions
+- **Vercel** — hosting + preview deploys
+- **Web Push** + service worker for iOS PWA notifications (later phase)
+
+## Local development
 
 ```bash
+cp .env.local.example .env.local   # fill in Supabase values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then visit http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Required environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Name | Where | Notes |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | client + server | from Supabase dashboard |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | client + server | from Supabase dashboard |
+| `SUPABASE_SERVICE_ROLE_KEY` | server only | never expose to client |
+| `NEXT_PUBLIC_SITE_URL` | client + server | used for magic-link redirects |
 
-## Learn More
+Set the same four variables in Vercel (Project → Settings → Environment Variables)
+for Production, Preview, and Development.
 
-To learn more about Next.js, take a look at the following resources:
+## Project layout
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+  app/
+    (app)/           protected app shell — header, bottom nav, dashboard
+    auth/            callback, error, sign-out routes
+    login/           magic-link sign-in
+    layout.tsx       root layout — metadata, viewport, theme
+    manifest.ts      PWA manifest
+  components/        UI primitives + app chrome
+  lib/
+    supabase/        server, client, proxy session refresh
+    utils.ts         cn helper
+  proxy.ts           Next.js 16 proxy (replaces middleware.ts)
+public/              static assets — icon TODO
+supabase/            migrations and seed (added in Phase 1)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Roles (Phase 1+)
 
-## Deploy on Vercel
+- `owner` — full access
+- `family` — everything except billing & integration secrets
+- `handyman` — only their assigned tasks + invoice entry
+- `guest` *(later)* — read-only stays/calendar
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Phase plan
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See conversation notes / project memory. Phase 0 ships auth + nav shell.
+Phase 1 ships calendar + tasks + handyman flow. Phase 4 adds Nest + weather.
+
+## Notes
+
+- Next.js 16 uses `proxy.ts` instead of `middleware.ts`. The proxy refreshes
+  the Supabase session cookie on every request.
+- `cookies()`, `headers()`, `params`, and `searchParams` are all async in v16.
+- PWA icons live in `/public` — see `public/ICONS.todo`.
