@@ -7,6 +7,7 @@ import { LAKE } from "@/lib/lake";
 import { sunsetUtc, formatLocalTime } from "@/lib/sun";
 import { getCurrentWeather } from "@/lib/weather";
 import { getCurrentStay, getNextStay } from "@/lib/stays";
+import { getTaskCounts } from "@/lib/tasks";
 import { formatStayRange, todayIsoAtLake } from "@/lib/dates";
 import type { StayWithProfile } from "@/lib/types";
 
@@ -49,12 +50,14 @@ function daysUntil(startIso: string, todayIso: string): string {
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const [{ data: userData }, weather, currentStay, nextStay] = await Promise.all([
-    supabase.auth.getUser(),
-    getCurrentWeather(),
-    getCurrentStay(),
-    getNextStay(),
-  ]);
+  const [{ data: userData }, weather, currentStay, nextStay, taskCounts] =
+    await Promise.all([
+      supabase.auth.getUser(),
+      getCurrentWeather(),
+      getCurrentStay(),
+      getNextStay(),
+      getTaskCounts(),
+    ]);
 
   const now = new Date();
   const firstName = firstNameFromEmail(userData.user?.email);
@@ -113,7 +116,7 @@ export default async function DashboardPage() {
         <NextStayCard stay={nextStay} today={today} />
         <CurrentStayCard stay={currentStay} />
         <div className="grid grid-cols-2 gap-3">
-          <TasksCard />
+          <TasksCard counts={taskCounts} />
           <MaintenanceCard />
         </div>
       </div>
@@ -219,9 +222,16 @@ function CurrentStayCard({ stay }: { stay: StayWithProfile | null }) {
   );
 }
 
-function TasksCard() {
+function TasksCard({
+  counts,
+}: {
+  counts: { open: number; dueThisWeek: number };
+}) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card">
+    <Link
+      href="/tasks"
+      className="overflow-hidden rounded-2xl border border-border bg-card active:bg-muted/40 transition"
+    >
       <div className="border-b border-border/60 bg-muted/40 px-4 py-2.5">
         <span className="font-data text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
           Tasks
@@ -229,11 +239,18 @@ function TasksCard() {
       </div>
       <div className="px-4 py-4">
         <p className="font-display text-3xl tracking-tight text-foreground">
-          0 <span className="text-base text-muted-foreground">open</span>
+          {counts.open}{" "}
+          <span className="text-base text-muted-foreground">open</span>
         </p>
-        <p className="mt-1 text-xs text-muted-foreground">Coming soon.</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {counts.dueThisWeek === 0
+            ? "Nothing due this week."
+            : counts.dueThisWeek === 1
+              ? "1 due this week."
+              : `${counts.dueThisWeek} due this week.`}
+        </p>
       </div>
-    </article>
+    </Link>
   );
 }
 
