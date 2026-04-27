@@ -4,6 +4,15 @@ import { NextResponse, type NextRequest } from "next/server";
 const PUBLIC_ROUTES = ["/login", "/auth/callback", "/auth/error"];
 
 export async function updateSession(request: NextRequest) {
+  const { pathname: rawPath, searchParams } = request.nextUrl;
+  const code = searchParams.get("code");
+  if (code && rawPath !== "/auth/callback") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    url.searchParams.delete("redirect");
+    return NextResponse.redirect(url);
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

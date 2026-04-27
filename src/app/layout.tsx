@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     default: "Blue Lake",
     template: "%s · Blue Lake",
   },
-  description: "Family lakehouse property management.",
+  description: "There are no rules at Blue Lake.",
   applicationName: "Blue Lake",
   appleWebApp: {
     capable: true,
@@ -38,7 +38,10 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#0b1220",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf7ef" },
+    { media: "(prefers-color-scheme: dark)", color: "#15293a" },
+  ],
 };
 
 export default function RootLayout({

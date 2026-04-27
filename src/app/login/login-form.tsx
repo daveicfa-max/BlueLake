@@ -17,7 +17,9 @@ export function LoginForm() {
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="text-xs uppercase tracking-wider text-muted-foreground">
+          Email
+        </Label>
         <Input
           id="email"
           name="email"
@@ -26,20 +28,25 @@ export function LoginForm() {
           required
           placeholder="you@example.com"
           inputMode="email"
+          className="h-11 text-base"
         />
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-full">
+      <Button
+        type="submit"
+        disabled={isPending}
+        className="h-11 w-full bg-foreground text-background hover:bg-foreground/90 disabled:opacity-60"
+      >
         {isPending ? "Sending…" : "Send magic link"}
       </Button>
 
       {state.status === "sent" && (
-        <p className="text-sm text-emerald-600 dark:text-emerald-400">
+        <p className="rounded-lg bg-brand-pine/10 px-3 py-2 text-sm text-brand-pine">
           {state.message}
         </p>
       )}
       {state.status === "error" && (
-        <p className="text-sm text-red-600 dark:text-red-400">
+        <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {state.message}
         </p>
       )}

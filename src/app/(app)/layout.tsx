@@ -18,9 +18,9 @@ export default async function AppLayout({
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col bg-background">
       <AppHeader email={user.email} />
-      <main className="flex-1 px-4 py-4">{children}</main>
+      <main className="flex-1">{children}</main>
       <BottomNav />
     </div>
   );

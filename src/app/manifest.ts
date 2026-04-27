@@ -4,13 +4,13 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Blue Lake",
     short_name: "Blue Lake",
-    description: "Family lakehouse property management.",
+    description: "There are no rules at Blue Lake.",
     start_url: "/",
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#0b1220",
-    theme_color: "#0b1220",
+    background_color: "#1f3a4f",
+    theme_color: "#1f3a4f",
     categories: ["productivity", "lifestyle"],
     icons: [
       {

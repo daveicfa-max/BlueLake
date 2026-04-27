@@ -1,10 +1,16 @@
+import { PageScaffold, PhasePlaceholder } from "@/components/page-scaffold";
+
 export default function TasksPage() {
   return (
-    <div className="flex flex-col gap-2">
-      <h1 className="text-2xl font-semibold tracking-tight">Tasks</h1>
-      <p className="text-sm text-muted-foreground">
-        Seasonal & handyman tasks — coming in Phase 1.
-      </p>
-    </div>
+    <PageScaffold
+      eyebrow="The lake"
+      title="What needs doing."
+      blurb="Open the cabin in May, close it in October, patch the dock in between."
+    >
+      <PhasePlaceholder
+        phase="Phase one"
+        blurb="Seasonal lists, handyman bids, who paid Keith last. All of it lives here soon."
+      />
+    </PageScaffold>
   );
 }

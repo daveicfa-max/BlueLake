@@ -1,10 +1,16 @@
+import { PageScaffold, PhasePlaceholder } from "@/components/page-scaffold";
+
 export default function CamerasPage() {
   return (
-    <div className="flex flex-col gap-2">
-      <h1 className="text-2xl font-semibold tracking-tight">Cameras</h1>
-      <p className="text-sm text-muted-foreground">
-        Nest camera snapshots — coming in Phase 4.
-      </p>
-    </div>
+    <PageScaffold
+      eyebrow="The lake"
+      title="Eyes on the place."
+      blurb="Nest snapshots from the dock, the drive, the porch."
+    >
+      <PhasePlaceholder
+        phase="Phase four"
+        blurb="Pipes haven't burst. The boat's still on the lift. You'll see for yourself."
+      />
+    </PageScaffold>
   );
 }

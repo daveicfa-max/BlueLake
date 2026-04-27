@@ -1,10 +1,16 @@
+import { PageScaffold, PhasePlaceholder } from "@/components/page-scaffold";
+
 export default function CalendarPage() {
   return (
-    <div className="flex flex-col gap-2">
-      <h1 className="text-2xl font-semibold tracking-tight">Calendar</h1>
-      <p className="text-sm text-muted-foreground">
-        Family stays — coming in Phase 1.
-      </p>
-    </div>
+    <PageScaffold
+      eyebrow="The lake"
+      title="Who's at the lake."
+      blurb="Family weekends, summer stretches, the quiet weeks in between."
+    >
+      <PhasePlaceholder
+        phase="Building this first"
+        blurb="Stays come together here. Who's pulling in, who's pulling out, who has the place to themselves."
+      />
+    </PageScaffold>
   );
 }
