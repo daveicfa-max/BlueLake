@@ -4,7 +4,14 @@ import { ChevronLeft, Trash2 } from "lucide-react";
 import { PageScaffold } from "@/components/page-scaffold";
 import { deleteTask, updateTask } from "../actions";
 import { TaskForm } from "../task-form";
+import { BillingSection } from "../billing-section";
 import { getAssignableUsers, getTaskById } from "@/lib/tasks";
+import {
+  getBidsForTask,
+  getCurrentUserRole,
+  getInvoicesForTask,
+} from "@/lib/billing";
+import { createClient } from "@/lib/supabase/server";
 import type { TaskFormState } from "../actions";
 
 export default async function EditTaskPage({
@@ -13,11 +20,28 @@ export default async function EditTaskPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [task, assignees] = await Promise.all([
+  const supabase = await createClient();
+  const [
+    task,
+    assignees,
+    bids,
+    invoices,
+    role,
+    {
+      data: { user },
+    },
+  ] = await Promise.all([
     getTaskById(id),
     getAssignableUsers(),
+    getBidsForTask(id),
+    getInvoicesForTask(id),
+    getCurrentUserRole(),
+    supabase.auth.getUser(),
   ]);
   if (!task) notFound();
+
+  const isAssignedHandyman =
+    role === "handyman" && !!user && task.assigned_to === user.id;
 
   const updateAction = async (
     prev: TaskFormState,
@@ -45,12 +69,20 @@ export default async function EditTaskPage({
       }
       title="Edit task."
     >
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-8">
         <TaskForm
           action={updateAction}
           task={task}
           assignees={assignees}
           submitLabel="Save changes"
+        />
+
+        <BillingSection
+          taskId={id}
+          bids={bids}
+          invoices={invoices}
+          role={role}
+          isAssignedHandyman={isAssignedHandyman}
         />
 
         <form action={deleteAction}>

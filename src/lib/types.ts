@@ -52,3 +52,36 @@ export type Profile = {
   phone: string | null;
   avatar_url: string | null;
 };
+
+export type BidStatus = "proposed" | "accepted" | "rejected";
+
+export type TaskBid = {
+  id: string;
+  task_id: string;
+  created_by: string;
+  amount_cents: number;
+  notes: string | null;
+  status: BidStatus;
+  created_at: string;
+  updated_at: string;
+};
+
+export type TaskBidWithProfile = TaskBid & {
+  creator: { full_name: string | null } | null;
+};
+
+export type TaskInvoice = {
+  id: string;
+  task_id: string;
+  created_by: string;
+  amount_cents: number;
+  notes: string | null;
+  paid_at: string | null;
+  payment_method: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type TaskInvoiceWithProfile = TaskInvoice & {
+  creator: { full_name: string | null } | null;
+};
