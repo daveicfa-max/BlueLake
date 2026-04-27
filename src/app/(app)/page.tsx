@@ -8,8 +8,9 @@ import { sunsetUtc, formatLocalTime } from "@/lib/sun";
 import { getCurrentWeather } from "@/lib/weather";
 import { getCurrentStay, getNextStay } from "@/lib/stays";
 import { getTaskCounts } from "@/lib/tasks";
+import { getDashboardSchedules } from "@/lib/maintenance";
 import { formatStayRange, todayIsoAtLake } from "@/lib/dates";
-import type { StayWithProfile } from "@/lib/types";
+import type { MaintenanceScheduleWithEquipment, StayWithProfile } from "@/lib/types";
 
 function firstNameFromEmail(email: string | null | undefined): string {
   if (!email) return "";
@@ -50,14 +51,21 @@ function daysUntil(startIso: string, todayIso: string): string {
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const [{ data: userData }, weather, currentStay, nextStay, taskCounts] =
-    await Promise.all([
-      supabase.auth.getUser(),
-      getCurrentWeather(),
-      getCurrentStay(),
-      getNextStay(),
-      getTaskCounts(),
-    ]);
+  const [
+    { data: userData },
+    weather,
+    currentStay,
+    nextStay,
+    taskCounts,
+    dueSchedules,
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    getCurrentWeather(),
+    getCurrentStay(),
+    getNextStay(),
+    getTaskCounts(),
+    getDashboardSchedules(30, 3),
+  ]);
 
   const now = new Date();
   const firstName = firstNameFromEmail(userData.user?.email);
@@ -117,7 +125,7 @@ export default async function DashboardPage() {
         <CurrentStayCard stay={currentStay} />
         <div className="grid grid-cols-2 gap-3">
           <TasksCard counts={taskCounts} />
-          <MaintenanceCard />
+          <MaintenanceCard schedules={dueSchedules} now={now} />
         </div>
       </div>
     </div>
@@ -254,23 +262,73 @@ function TasksCard({
   );
 }
 
-function MaintenanceCard() {
+function MaintenanceCard({
+  schedules,
+  now,
+}: {
+  schedules: MaintenanceScheduleWithEquipment[];
+  now: Date;
+}) {
+  if (schedules.length === 0) {
+    return (
+      <Link
+        href="/maintenance"
+        className="overflow-hidden rounded-2xl border border-border bg-card active:bg-muted/40 transition"
+      >
+        <div className="border-b border-border/60 bg-muted/40 px-4 py-2.5">
+          <span className="font-data text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+            Maintenance
+          </span>
+        </div>
+        <div className="px-4 py-4">
+          <div className="flex items-center gap-2">
+            <Wrench aria-hidden className="h-4 w-4 text-brand-pine" />
+            <p className="font-display text-base tracking-tight text-foreground">
+              Nothing due
+            </p>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Next 30 days are clear.
+          </p>
+        </div>
+      </Link>
+    );
+  }
+
+  const top = schedules[0];
+  const due = new Date(top.next_due_at).getTime();
+  const days = Math.round((due - now.getTime()) / (1000 * 60 * 60 * 24));
+  const dueText =
+    days < 0
+      ? `${Math.abs(days)}d overdue`
+      : days === 0
+        ? "due today"
+        : `due in ${days}d`;
+
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card">
-      <div className="border-b border-border/60 bg-muted/40 px-4 py-2.5">
+    <Link
+      href="/maintenance"
+      className="overflow-hidden rounded-2xl border border-border bg-card active:bg-muted/40 transition"
+    >
+      <div className="border-b border-border/60 bg-muted/40 px-4 py-2.5 flex items-center justify-between">
         <span className="font-data text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
           Maintenance
+        </span>
+        <span className="font-data text-[10px] uppercase tracking-[0.22em] text-brand-sunset-ember">
+          {schedules.length} due
         </span>
       </div>
       <div className="px-4 py-4">
         <div className="flex items-center gap-2">
           <Wrench aria-hidden className="h-4 w-4 text-brand-sunset-ember" />
-          <p className="font-display text-base tracking-tight text-foreground">
-            Nothing due
+          <p className="font-display text-base tracking-tight text-foreground truncate">
+            {top.equipment?.name ?? top.name}
           </p>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">Coming soon.</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {top.name} · {dueText}
+        </p>
       </div>
-    </article>
+    </Link>
   );
 }
