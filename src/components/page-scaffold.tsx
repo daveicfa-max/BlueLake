@@ -1,5 +1,5 @@
 type Props = {
-  eyebrow?: string;
+  eyebrow?: React.ReactNode;
   title: string;
   blurb?: string;
   children?: React.ReactNode;
